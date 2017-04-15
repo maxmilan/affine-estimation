@@ -1,5 +1,4 @@
 import xlrd
-import code
 from scipy.optimize import minimize
 from datetime import datetime
 from lib.yield_series import YieldSeries
@@ -11,10 +10,7 @@ sheet_index = book.sheet_names().index('ZEROYLD')
 sheet = book.sheet_by_index(sheet_index)
 
 def prepare_data():
-  # nfactors = 2
-  # maturities_in_months = list(map(lambda x: x * 24, range(0, 2 * nfactors)))
   first_row = sheet.row_values(0)
-  # columns_indices = list(map(lambda x: first_row.index(x), maturities_in_months))
   columns_indices = range(1, len(first_row))
   data = []
 
@@ -34,5 +30,6 @@ def prepare_data():
 
   return data
 
-y_s = YieldSeries(table=prepare_data())
-# code.interact(local=dict(globals(), **locals()))
+y_s = YieldSeries(table=prepare_data(), nfactors=2)
+print(y_s[1])
+print(y_s[1, 1])
