@@ -29,7 +29,12 @@ class YieldSeries():
       maturity = None
     else:
       time = keys[0]
-      maturity = keys[1]
+      if len(keys) < 3:
+        last_item = None
+      else:
+        last_item = keys[2]
+
+      maturity = slice(keys[1] - 1, last_item)
 
     section = self.series[time]
 

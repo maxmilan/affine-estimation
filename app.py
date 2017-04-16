@@ -1,7 +1,13 @@
 import xlrd
+import numpy as np
+import math
+from numpy.linalg import det
+from numpy.linalg import inv
 from scipy.optimize import minimize
+from scipy.stats import multivariate_normal
 from datetime import datetime
 from lib.yield_series import YieldSeries
+from lib.matrix import *
 
 FILENAME = "data/yields.xls"
 
@@ -30,6 +36,19 @@ def prepare_data():
 
   return data
 
-y_s = YieldSeries(table=prepare_data(), nfactors=2)
-print(y_s[1])
-print(y_s[1, 1])
+def Γ(θ):
+  τ = [1 / 12, 2]
+  return np.array(list(map(lambda x: [- ((math.exp(θ[0]) - math.exp(θ[2])) * x * θ[1]**2) / (θ[0] * θ[2] * (θ[0] - θ[2])), - (1 - x * math.exp(θ[2])) / θ[2]], τ)))
+
+def Γ0(θ):
+  return [-1, -1]
+
+y_s = YieldSeries(table = prepare_data(), nfactors = 2)
+
+# error_distribution = multivariate_normal(mean = np.zeros(2), cov = np.diag([1, 1]))
+# print(error_distribution.pdf([1,0]))
+ 
+θ = [0.1, 0.2, 0.3]
+gt = y_s[0, 1, 2]
+xt = inv(Γ(θ).transpose()).dot(subtract(gt, Γ0(θ)))
+print(xt)
