@@ -41,14 +41,15 @@ def Γ(θ):
   return np.array(list(map(lambda x: [- ((math.exp(θ[0]) - math.exp(θ[2])) * x * θ[1]**2) / (θ[0] * θ[2] * (θ[0] - θ[2])), - (1 - x * math.exp(θ[2])) / θ[2]], τ)))
 
 def Γ0(θ):
-  return [-1, -1]
+  τ = [1 / 12, 2]
+  return np.array(list(map(lambda x: x * (x**2 * (float(1) / 6 * math.exp(2 * θ[0]) + float(1) / 6 * math.exp(2 * θ[2]) - float(1) / 3 * math.exp(θ[0] + θ[2])) * θ[1]**4 + x * (0.5 * math.exp(θ[0]) - 0.5 * math.exp(θ[2])) * θ[0] * θ[1]**2 * θ[2]**2 * θ[3] + θ[0]**3 * θ[2] * (-1 + x * math.exp(θ[2]) - float(1) / 3 * x**2 * math.exp(2 * θ[2]) + (2 - x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**4 * (0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2]) + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**2 * θ[2] * ((0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2])) * θ[2] + x * (-0.5 * math.exp(θ[0]) + 0.5 * math.exp(θ[2])) * θ[1]**2 * θ[3] + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2]**2 * θ[4])) / (θ[0]**2 * θ[2]**2 * (θ[0]**2 - 2 * θ[0] * θ[2] + θ[2]**2)), τ)))
 
 y_s = YieldSeries(table = prepare_data(), nfactors = 2)
 
 # error_distribution = multivariate_normal(mean = np.zeros(2), cov = np.diag([1, 1]))
 # print(error_distribution.pdf([1,0]))
  
-θ = [0.1, 0.2, 0.3]
+θ = [0.1, 0.2, 0.3, 0.03, 0.04]
 gt = y_s[0, 1, 2]
 xt = inv(Γ(θ).transpose()).dot(subtract(gt, Γ0(θ)))
 print(xt)
