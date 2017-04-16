@@ -23,6 +23,9 @@ class YieldSeries():
     
     return self._maturities
 
+  def length(self):
+    return len(self.series)
+
   def __getitem__(self, keys):
     if isinstance(keys, int):
       time = keys

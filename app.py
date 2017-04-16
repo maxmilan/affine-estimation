@@ -8,6 +8,8 @@ from scipy.stats import multivariate_normal
 from datetime import datetime
 from lib.yield_series import YieldSeries
 from lib.matrix import *
+from lib.statistics import *
+from lib.enumerable import *
 
 FILENAME = "data/yields.xls"
 
@@ -40,16 +42,39 @@ def Γ(θ):
   τ = [1 / 12, 2]
   return np.array(list(map(lambda x: [- ((math.exp(θ[0]) - math.exp(θ[2])) * x * θ[1]**2) / (θ[0] * θ[2] * (θ[0] - θ[2])), - (1 - x * math.exp(θ[2])) / θ[2]], τ)))
 
+def Γ_ext(θ):
+  τ = [4, 6]
+  return np.array(list(map(lambda x: [- ((math.exp(θ[0]) - math.exp(θ[2])) * x * θ[1]**2) / (θ[0] * θ[2] * (θ[0] - θ[2])), - (1 - x * math.exp(θ[2])) / θ[2]], τ)))
+
 def Γ0(θ):
   τ = [1 / 12, 2]
-  return np.array(list(map(lambda x: x * (x**2 * (float(1) / 6 * math.exp(2 * θ[0]) + float(1) / 6 * math.exp(2 * θ[2]) - float(1) / 3 * math.exp(θ[0] + θ[2])) * θ[1]**4 + x * (0.5 * math.exp(θ[0]) - 0.5 * math.exp(θ[2])) * θ[0] * θ[1]**2 * θ[2]**2 * θ[3] + θ[0]**3 * θ[2] * (-1 + x * math.exp(θ[2]) - float(1) / 3 * x**2 * math.exp(2 * θ[2]) + (2 - x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**4 * (0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2]) + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**2 * θ[2] * ((0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2])) * θ[2] + x * (-0.5 * math.exp(θ[0]) + 0.5 * math.exp(θ[2])) * θ[1]**2 * θ[3] + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2]**2 * θ[4])) / (θ[0]**2 * θ[2]**2 * (θ[0]**2 - 2 * θ[0] * θ[2] + θ[2]**2)), τ)))
+  return np.array(list(map(lambda x: - x * (x**2 * (float(1) / 6 * math.exp(2 * θ[0]) + float(1) / 6 * math.exp(2 * θ[2]) - float(1) / 3 * math.exp(θ[0] + θ[2])) * θ[1]**4 + x * (0.5 * math.exp(θ[0]) - 0.5 * math.exp(θ[2])) * θ[0] * θ[1]**2 * θ[2]**2 * θ[3] + θ[0]**3 * θ[2] * (-1 + x * math.exp(θ[2]) - float(1) / 3 * x**2 * math.exp(2 * θ[2]) + (2 - x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**4 * (0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2]) + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**2 * θ[2] * ((0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2])) * θ[2] + x * (-0.5 * math.exp(θ[0]) + 0.5 * math.exp(θ[2])) * θ[1]**2 * θ[3] + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2]**2 * θ[4])) / (θ[0]**2 * θ[2]**2 * (θ[0]**2 - 2 * θ[0] * θ[2] + θ[2]**2)), τ)))
+
+def Γ0_ext(θ):
+  τ = [4, 6]
+  return np.array(list(map(lambda x: - x * (x**2 * (float(1) / 6 * math.exp(2 * θ[0]) + float(1) / 6 * math.exp(2 * θ[2]) - float(1) / 3 * math.exp(θ[0] + θ[2])) * θ[1]**4 + x * (0.5 * math.exp(θ[0]) - 0.5 * math.exp(θ[2])) * θ[0] * θ[1]**2 * θ[2]**2 * θ[3] + θ[0]**3 * θ[2] * (-1 + x * math.exp(θ[2]) - float(1) / 3 * x**2 * math.exp(2 * θ[2]) + (2 - x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**4 * (0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2]) + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2] * θ[4]) + θ[0]**2 * θ[2] * ((0.5 - 0.5 * x * math.exp(θ[2]) + float(1) / 6 * x**2 * math.exp(2 * θ[2])) * θ[2] + x * (-0.5 * math.exp(θ[0]) + 0.5 * math.exp(θ[2])) * θ[1]**2 * θ[3] + (-1 + 0.5 * x * math.exp(θ[2])) * θ[2]**2 * θ[4])) / (θ[0]**2 * θ[2]**2 * (θ[0]**2 - 2 * θ[0] * θ[2] + θ[2]**2)), τ)))
 
 y_s = YieldSeries(table = prepare_data(), nfactors = 2)
 
-# error_distribution = multivariate_normal(mean = np.zeros(2), cov = np.diag([1, 1]))
-# print(error_distribution.pdf([1,0]))
- 
-θ = [0.1, 0.2, 0.3, 0.03, 0.04]
-gt = y_s[0, 1, 2]
-xt = inv(Γ(θ).transpose()).dot(subtract(gt, Γ0(θ)))
-print(xt)
+def likelihood(θ):
+  yield_errors = []
+  for i in range(0, y_s.length()):
+    gt = y_s[i, 1, 2]
+    gt_ext = y_s[i, 3, 4]
+    xt = inv(Γ(θ).transpose()).dot(subtract(gt, Γ0(θ)))
+    gt_calculated = Γ0_ext(θ) + Γ_ext(θ).dot(xt)
+    yield_errors.append(subtract(gt_calculated, gt_ext))
+
+  σ = multi_std(yield_errors)
+  error_distribution = multivariate_normal(mean = np.zeros(2), cov = np.diag(σ))
+
+  joint_errors_likelihood = inject(lambda memo, x: memo * x, 1.0, list(map(lambda x: error_distribution.pdf(x), yield_errors)))
+
+  return -joint_errors_likelihood
+
+# error_distribution = 
+# print()
+
+theta = [1.28470947, 0.56958007, 1.26190486, 0.01, 0.02]
+estimate = minimize(likelihood, theta, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})  
+print(estimate)
