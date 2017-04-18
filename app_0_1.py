@@ -5,11 +5,13 @@ from numpy.linalg import det
 from numpy.linalg import inv
 from scipy.optimize import minimize
 from scipy.stats import norm
+from sympy import *
 from datetime import datetime
 from lib.yield_series import YieldSeries
 from lib.matrix import *
 from lib.statistics import *
 from lib.enumerable import *
+from models.a_0_1 import A01
 
 FILENAME = "data/yields.xls"
 
@@ -54,15 +56,13 @@ def Γ0_ext(θ):
   x = 2
   return - (θ[1] * ((3 - 4 * math.exp(x * θ[0]) + math.exp(2 * x * θ[0]) + 2 * x * θ[0]) * θ[1] - 4 * θ[0] * (1 - math.exp(x * θ[0]) + x * θ[0]) * θ[2])) / (4. * θ[0]**3)
 
-y_s = YieldSeries(table = prepare_data(), nfactors = 1)
-
-def likelihood(θ):
+def likelihood(θ, model):
   yield_errors = []
   for i in range(0, y_s.length()):
     gt = y_s[i, 1, 1]
     gt_ext = y_s[i, 2, 2]
-    xt = (gt - Γ0(θ)) / Γ(θ)
-    gt_calculated = Γ0_ext(θ) + Γ_ext(θ) * xt
+    xt = (gt - model.Γ0(θ)) / Γ(θ)
+    gt_calculated = model.Γ0_ext(θ) + Γ_ext(θ) * xt
     yield_errors.append(gt_calculated - gt_ext)
 
   σ = np.std(yield_errors)
@@ -73,5 +73,7 @@ def likelihood(θ):
   return -joint_errors_likelihood
 
 theta = [0.1, 0.1, 0.1]
-estimate = minimize(likelihood, theta, method='nelder-mead', options={'xtol': 1e-8, 'disp': True})  
+y_s = YieldSeries(table = prepare_data(), nfactors = 1)
+model = A01()
+estimate = minimize(likelihood, theta, args=(model,), method='nelder-mead', options={'xtol': 1e-8, 'disp': True})  
 print(estimate)
