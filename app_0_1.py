@@ -40,29 +40,13 @@ def prepare_data():
 
   return data
 
-def Γ(θ):
-  x = 1 / 12
-  return ((math.exp(x * θ[0])) * θ[1]) / θ[0]
-
-def Γ_ext(θ):
-  x = 2
-  return ((math.exp(x * θ[0])) * θ[1]) / θ[0]
-
-def Γ0(θ):
-  x = 1 / 12
-  return - (θ[1] * ((3 - 4 * math.exp(x * θ[0]) + math.exp(2 * x * θ[0]) + 2 * x * θ[0]) * θ[1] - 4 * θ[0] * (1 - math.exp(x * θ[0]) + x * θ[0]) * θ[2])) / (4. * θ[0]**3)
-
-def Γ0_ext(θ):
-  x = 2
-  return - (θ[1] * ((3 - 4 * math.exp(x * θ[0]) + math.exp(2 * x * θ[0]) + 2 * x * θ[0]) * θ[1] - 4 * θ[0] * (1 - math.exp(x * θ[0]) + x * θ[0]) * θ[2])) / (4. * θ[0]**3)
-
-def likelihood(θ, model):
+def likelihood(θ, model, observations):
   yield_errors = []
-  for i in range(0, y_s.length()):
-    gt = y_s[i, 1, 1]
-    gt_ext = y_s[i, 2, 2]
-    xt = (gt - model.Γ0(θ)) / Γ(θ)
-    gt_calculated = model.Γ0_ext(θ) + Γ_ext(θ) * xt
+  for i in range(0, observations.length()):
+    gt = observations[i, 1, model.n]
+    gt_ext = observations[i, model.n + 1, 2 * model.n]
+    xt = (gt - model.Γ0(θ)) / model.Γ(θ)
+    gt_calculated = model.Γ0_ext(θ) + model.Γ_ext(θ) * xt
     yield_errors.append(gt_calculated - gt_ext)
 
   σ = np.std(yield_errors)
@@ -72,8 +56,6 @@ def likelihood(θ, model):
 
   return -joint_errors_likelihood
 
-theta = [0.1, 0.1, 0.1]
-y_s = YieldSeries(table = prepare_data(), nfactors = 1)
-model = A01()
-estimate = minimize(likelihood, theta, args=(model,), method='nelder-mead', options={'xtol': 1e-8, 'disp': True})  
-print(estimate)
+theta0 = [0.1, 0.1, 0.1]
+a01_estimates = minimize(likelihood, theta0, args=(A01(), YieldSeries(table = prepare_data(), nfactors = 1),), method='nelder-mead', options={'xtol': 1e-8, 'disp': True})
+print(a01_estimates.x)
