@@ -11,7 +11,7 @@ class YieldSeries():
   def series(self):
     if self._series is None:
       self._series = list(map(lambda x: { k:v for (k, v) in x.items() if k in self.maturities }, self.table))
-    
+
     return self._series
 
   @property
@@ -20,7 +20,7 @@ class YieldSeries():
       memo = list(map(lambda x: x * 24, range(1, 2 * self.nfactors)))
       memo.insert(0, 1.0)
       self._maturities = memo
-    
+
     return self._maturities
 
   def length(self):

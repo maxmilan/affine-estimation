@@ -41,35 +41,42 @@ def prepare_data():
 
   return data
 
-def likelihood(θ, model, observations):
+def likelihood(θ, model, observations, likelihood_method):
+  print(θ)
   yield_errors = []
   n = observations.length()
-  for i in range(0, n):
-    gt = observations[i, 1, model.n]
-    gt_ext = observations[i, model.n + 1, 2 * model.n]
-    xt = (gt - model.Γ0(θ)) / model.Γ(θ)
-    gt_calculated = model.Γ0_ext(θ) + model.Γ_ext(θ) * xt
-    yield_errors.append(gt_calculated - gt_ext)
+  # for i in range(0, n):
+  #   gt = observations[i, 1, model.n]
+  #   gt_ext = observations[i, model.n + 1, 2 * model.n]
+  #   xt = (gt + model.Γ_0(θ)) / model.Γ(θ)
+  #   gt_calculated = -model.Γ_0_ext(θ) + model.Γ_ext(θ) * xt
+  #   yield_errors.append(gt_calculated - gt_ext)
 
-  σ = np.std(yield_errors)
-  error_distribution = norm(0, σ)
+  # σ = np.std(yield_errors)
+  # error_distribution = norm(0, σ)
 
   # joint_errors_likelihood = inject(lambda memo, x: memo + math.log(x), 0.0, list(map(lambda x: error_distribution.pdf(x), yield_errors)))
   observations_likelihood = 0.0
   for i in range(1, n):
     g = observations[i, 1, model.n]
     g_0 = observations[i - 1, 1, model.n]
-    observations_likelihood += model.l_g(2, delta, g, g_0, θ)
+    observations_likelihood += model.l_g(likelihood_method, delta, g, g_0, θ)
 
   # return -(joint_errors_likelihood + observations_likelihood) / n
   # return -joint_errors_likelihood / n
   return -observations_likelihood / n
 
-theta0 = [-0.03, -0.01, 1]
+theta0 = [-0.03, 0.05, 1]
 model = A01()
 y_s = YieldSeries(table = prepare_data(), nfactors = 1)
-a01_estimates = minimize(likelihood, theta0, args=(model, y_s,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+# OK!!!
+# a01_true = minimize(likelihood, theta0, args=(model, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+# print(a01_true.x)
+
+a01_approx = minimize(likelihood, theta0, args=(model, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_approx.x)
+
+
 # for i in range(0, y_s.length()):
 #   gt = y_s[i, 1, model.n]
-#   print((gt - model.Γ0(a01_estimates.x)) / model.Γ(a01_estimates.x))
-print(a01_estimates.x)
+#   print((gt - model.Γ_0(a01_estimates.x)) / model.Γ(a01_estimates.x))
