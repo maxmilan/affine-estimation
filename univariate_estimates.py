@@ -42,7 +42,6 @@ def prepare_data():
   return data
 
 def likelihood(θ, model, observations, likelihood_method):
-  print(θ)
   yield_errors = []
   n = observations.length()
   # for i in range(0, n):
@@ -70,13 +69,9 @@ theta0 = [-0.03, 0.05, 1]
 model = A01()
 y_s = YieldSeries(table = prepare_data(), nfactors = 1)
 # OK!!!
-# a01_true = minimize(likelihood, theta0, args=(model, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-# print(a01_true.x)
-
-a01_approx = minimize(likelihood, theta0, args=(model, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-print(a01_approx.x)
-
-
-# for i in range(0, y_s.length()):
-#   gt = y_s[i, 1, model.n]
-#   print((gt - model.Γ_0(a01_estimates.x)) / model.Γ(a01_estimates.x))
+a01_true = minimize(likelihood, theta0, args=(model, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_true.x)
+a01_approx_1 = minimize(likelihood, theta0, args=(model, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_approx_1.x)
+a01_approx_2 = minimize(likelihood, theta0, args=(model, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_approx_2.x)
