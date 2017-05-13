@@ -71,6 +71,8 @@ y_s = YieldSeries(table = prepare_data(), nfactors = 1)
 # OK!!!
 a01_true = minimize(likelihood, theta0, args=(model, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
 print(a01_true.x)
+a01_euler = minimize(likelihood, theta0, args=(model, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_euler.x)
 a01_approx_1 = minimize(likelihood, theta0, args=(model, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
 print(a01_approx_1.x)
 a01_approx_2 = minimize(likelihood, theta0, args=(model, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })

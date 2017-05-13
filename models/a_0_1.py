@@ -65,6 +65,9 @@ class A01:
   def l_x_true(self, Δ, x, x_0, θ):
     return log(sqrt(- θ[0] / (pi * (1 - exp(2 * θ[0] * Δ)))) * exp((θ[0] * (x - θ[2] / θ[0] - (x_0 - θ[2] / θ[0]) * exp(θ[0] * Δ))**2)/(1 - exp(2 * θ[0] * Δ))))
 
+  def l_x_euler(self, Δ, x, x_0, θ):
+    return log(sqrt(1 / (2 * pi * Δ)) * exp(-(x - x_0 - (-θ[2] + θ[0] * x_0) * Δ)**2 / (2 * Δ)))
+
   def l_x(self, k, Δ, x, x_0, θ):
     sum = 1
 
@@ -99,5 +102,7 @@ class A01:
       return log(abs(1 / self.Γ(θ))) + self.l_x(k, Δ, x, x_0, θ)
     elif k == "true":
       return log(abs(1 / self.Γ(θ))) + self.l_x_true(Δ, x, x_0, θ)
+    elif k == "euler":
+      return log(abs(1 / self.Γ(θ))) + self.l_x_euler(Δ, x, x_0, θ)
     else:
       raise BaseException("Wrong argument k = " + str(k) + " in l_g!")
