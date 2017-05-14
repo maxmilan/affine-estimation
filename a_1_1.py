@@ -7,9 +7,9 @@ from models.univariate_model import *
 # θ[1] - δ_1
 # θ[2] - λ_1
 
-class A01(UnivariateModel):
+class A11(UnivariateModel):
   def __init__(self, without_error_maturity=1.0/12, with_error_maturity=2.0):
-    UnivariateModel.__init__(self, 0, without_error_maturity, with_error_maturity)
+    UnivariateModel.__init__(self, 1, without_error_maturity, with_error_maturity)
 
   def γ_0(self, τ, θ):
     return (θ[1] * ((3 - 4 * exp(τ * θ[0]) + exp(2 * τ * θ[0]) + 2 * τ * θ[0]) * θ[1] - 4 * θ[0] * (1 - exp(τ * θ[0]) + τ * θ[0]) * θ[2])) / (4 * θ[0]**3)
