@@ -1,21 +1,63 @@
 from sympy import *
 from math import *
+from lib.net_function import NetFunction
 from models.univariate_model import *
 
 # Parameters binding
 # θ[0] - b_11
 # θ[1] - δ_1
 # θ[2] - λ_1
+# θ[3] - a_1
+
+MAX_MATURITY = 30
+MATURITY_STEP = 1 / (12 * 8)
 
 class A11(UnivariateModel):
   def __init__(self, without_error_maturity=1.0/12, with_error_maturity=2.0):
     UnivariateModel.__init__(self, 1, without_error_maturity, with_error_maturity)
+    self.theta0 = []
+    self.theta = []
+    self._g0 = None
+    self._g = None
+    self._nodes = None
+
+  @property
+  def nodes(self):
+    if self._nodes is None:
+      values = []
+      for i in range(int(MAX_MATURITY / MATURITY_STEP) + 1):
+        values.append(i * MATURITY_STEP)
+      self._nodes = values
+
+    return self._nodes
+
+  def gamma0(self, θ):
+    if self.theta0 != θ:
+      values = [0]
+      for i in range(1, len(self.nodes)):
+        values.append(values[i - 1] - MATURITY_STEP * θ[3] * self.gamma(θ).y[i - 1])
+
+      self._g0 = NetFunction(self.nodes, values)
+      self.theta0 = θ
+
+    return self._g0
+
+  def gamma(self, θ):
+    if self.theta != θ:
+      values = [0]
+      for i in range(1, len(self.nodes)):
+        values.append(values[i - 1] + MATURITY_STEP * ((θ[0] - θ[2]) * values[i - 1] - 0.5 * values[i - 1]**2 + θ[1]))
+
+      self._g = NetFunction(self.nodes, values)
+      self.theta = θ
+
+    return self._g
 
   def γ_0(self, τ, θ):
-    return (θ[1] * ((3 - 4 * exp(τ * θ[0]) + exp(2 * τ * θ[0]) + 2 * τ * θ[0]) * θ[1] - 4 * θ[0] * (1 - exp(τ * θ[0]) + τ * θ[0]) * θ[2])) / (4 * θ[0]**3)
+    return self.gamma0(θ).call(τ)
 
   def γ(self, τ, θ):
-    return ((exp(τ * θ[0]) - 1) * θ[1]) / θ[0]
+    return self.gamma(θ).call(τ)
 
   def l_x_true(self, Δ, x, x_0, θ):
     return log(sqrt(- θ[0] / (pi * (1 - exp(2 * θ[0] * Δ)))) * exp((θ[0] * (x - θ[2] / θ[0] - (x_0 - θ[2] / θ[0]) * exp(θ[0] * Δ))**2)/(1 - exp(2 * θ[0] * Δ))))
