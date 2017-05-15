@@ -28,7 +28,7 @@ def prepare_data():
 
   for row_index in range(sheet.nrows):
     row_values = sheet.row_values(row_index)
-    if row_values[0] and datetime.strptime(row_values[0], "%m/%Y") >= datetime(1972, 1, 1):
+    if row_values[0] and datetime.strptime(row_values[0], "%m/%Y") >= datetime(1946, 12, 1):
       item = {}
 
       for i in range(len(columns_indices)):
@@ -67,21 +67,20 @@ def likelihood(θ, model, observations, likelihood_method):
   return -observations_likelihood / n
 
 # OK
-# theta0 = [-0.03, 0.05, 1]
-# model01 = A01()
-# y_s = YieldSeries(table = prepare_data(), nfactors = 1)
-# a01_true = minimize(likelihood, theta0, args=(model01, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-# print(a01_true.x)
-# a01_euler = minimize(likelihood, theta0, args=(model01, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-# print(a01_euler.x)
-# a01_approx_1 = minimize(likelihood, theta0, args=(model01, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+theta0 = [-0.03, 0.05, 1]
+model01 = A01()
+y_s = YieldSeries(table = prepare_data(), nfactors = 1)
+a01_true = minimize(likelihood, theta0, args=(model01, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_true.x)
+a01_euler = minimize(likelihood, theta0, args=(model01, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_euler.x)
+a01_approx_1 = minimize(likelihood, theta0, args=(model01, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_approx_1.x)
+a01_approx_2 = minimize(likelihood, theta0, args=(model01, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a01_approx_2.x)
+
+
+# theta0 = [-0.03, 0.05, 1, 0.5]
+# model11 = A11()
+# a01_approx_1 = minimize(likelihood, theta0, args=(model11, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
 # print(a01_approx_1.x)
-# a01_approx_2 = minimize(likelihood, theta0, args=(model01, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-# print(a01_approx_2.x)
-
-
-theta0 = [-0.03, 0.05, 1, 0.5]
-model11 = A11()
-
-print(model11.gamma(theta0))
-print(model11.gamma0(theta0))

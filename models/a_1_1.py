@@ -1,6 +1,8 @@
 from sympy import *
 from math import *
+import numpy as np
 from lib.net_function import NetFunction
+from lib.enumerable import equal_enumerables
 from models.univariate_model import *
 
 # Parameters binding
@@ -32,7 +34,7 @@ class A11(UnivariateModel):
     return self._nodes
 
   def gamma0(self, θ):
-    if self.theta0 != θ:
+    if not(equal_enumerables(self.theta0, θ)):
       values = [0]
       for i in range(1, len(self.nodes)):
         values.append(values[i - 1] - MATURITY_STEP * θ[3] * self.gamma(θ).y[i - 1])
@@ -43,7 +45,7 @@ class A11(UnivariateModel):
     return self._g0
 
   def gamma(self, θ):
-    if self.theta != θ:
+    if not(equal_enumerables(self.theta, θ)):
       values = [0]
       for i in range(1, len(self.nodes)):
         values.append(values[i - 1] + MATURITY_STEP * ((θ[0] - θ[2]) * values[i - 1] - 0.5 * values[i - 1]**2 + θ[1]))
@@ -59,17 +61,14 @@ class A11(UnivariateModel):
   def γ(self, τ, θ):
     return self.gamma(θ).call(τ)
 
-  def l_x_true(self, Δ, x, x_0, θ):
-    return log(sqrt(- θ[0] / (pi * (1 - exp(2 * θ[0] * Δ)))) * exp((θ[0] * (x - θ[2] / θ[0] - (x_0 - θ[2] / θ[0]) * exp(θ[0] * Δ))**2)/(1 - exp(2 * θ[0] * Δ))))
-
   def l_x_euler(self, Δ, x, x_0, θ):
     return log(sqrt(1 / (2 * pi * Δ)) * exp(-(x - x_0 - (-θ[2] + θ[0] * x_0) * Δ)**2 / (2 * Δ)))
 
   def p_x_0(self, Δ, x, x_0, θ):
-    return 1.0 / sqrt(2 * pi * Δ) * exp(- (x - x_0)**2 / (2 * Δ) + θ[0] * x**2 / 2 - θ[0] * x_0**2 / 2 - θ[2] * x + θ[2] * x_0)
+    return x**(2 * θ[3] - 0.5) * x_0**(0.5 - 2 * θ[3]) / sqrt(2 * pi * Δ) * exp(- (x - x_0)**2 / (2 * Δ) - (θ[2] - θ[0]) * x**2 / 4 + (θ[2] - θ[0]) * x_0**2 / 4)
 
   def c1(self, x, x_0, θ):
-    return θ[0] / 6 * (-3 * (θ[2])**2 / θ[0] + 3 * θ[2] * (x + x_0) - 3 - θ[0] * x**2 - θ[0] * x * x_0 - θ[0] * x_0**2)
+    return - 1 / (24 * x * x_0) * (48 * θ[3]**2 - 48 * θ[3] + 9 + x * x_0 * (θ[2] - θ[0])**2 * (x**2 - 24 * θ[3] / (θ[2] - θ[0])) + x**2 * x_0**2 * (θ[2] - θ[0])**2 + x * x_0**3 * (θ[2] - θ[0])**2)
 
   def c2(self, x, x_0, θ):
     return θ[0]**2 / 36 * ((9 * θ[2]**4) / θ[0]**2 - 18 * θ[2]**3 / θ[0] * x + 3 * θ[2]**2 / θ[0] * (6 + 5 * θ[0] * x**2) - 6 * θ[2] * x * (3 + θ[0] * x**2) + 3 + 6 * θ[0] * x**2 + θ[0]**2 * x**4 + 2 * θ[0] * x_0 * (x - 3 * θ[2] / θ[0]) * (3 * θ[2]**2 / θ[0] - 3 * θ[2] * x + 3 + θ[0] * x**2) + 3 * θ[0] * x_0**2 * (5 * θ[2]**2 / θ[0] - 4 * θ[2] * x + 2 + θ[0] * x**2) + 2 * θ[0]**2 * x_0**3 * (x - 3 * θ[2] / θ[0]) + θ[0]**2 * x_0**4)

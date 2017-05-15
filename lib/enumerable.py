@@ -9,3 +9,13 @@ def find_first(f, object):
       return i
 
   return -1
+
+def equal_enumerables(a, b):
+  if (a is None) or (b is None) or (len(a) != len(b)):
+    return False
+
+  for i in range(len(a)):
+    if a[i] != b[i]:
+      return False
+
+  return True
