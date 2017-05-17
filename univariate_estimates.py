@@ -13,6 +13,7 @@ from lib.statistics import *
 from lib.enumerable import *
 from models.a_0_1 import A01
 from models.a_1_1 import A11
+import code
 
 FILENAME = "data/yields.xls"
 
@@ -28,7 +29,7 @@ def prepare_data():
 
   for row_index in range(sheet.nrows):
     row_values = sheet.row_values(row_index)
-    if row_values[0] and datetime.strptime(row_values[0], "%m/%Y") >= datetime(1946, 12, 1):
+    if row_values[0] and datetime.strptime(row_values[0], "%m/%Y") >= datetime(1965, 1, 1):
       item = {}
 
       for i in range(len(columns_indices)):
@@ -44,18 +45,21 @@ def prepare_data():
 
 def likelihood(θ, model, observations, likelihood_method):
   yield_errors = []
+  # print(θ)
   n = observations.length()
-  # for i in range(0, n):
-  #   gt = observations[i, 1, model.n]
-  #   gt_ext = observations[i, model.n + 1, 2 * model.n]
-  #   xt = (gt + model.Γ_0(θ)) / model.Γ(θ)
-  #   gt_calculated = -model.Γ_0_ext(θ) + model.Γ_ext(θ) * xt
-  #   yield_errors.append(gt_calculated - gt_ext)
+  for i in range(0, n):
+    gt = observations[i, 1, model.n]
+    gt_ext = observations[i, model.n + 1, 2 * model.n]
+    xt = (gt + model.Γ_0(θ)) / model.Γ(θ)
+    gt_calculated = -model.Γ_0_ext(θ) + model.Γ_ext(θ) * xt
+    yield_errors.append((gt_calculated - gt_ext)**2)
 
   # σ = np.std(yield_errors)
   # error_distribution = norm(0, σ)
 
   # joint_errors_likelihood = inject(lambda memo, x: memo + math.log(x), 0.0, list(map(lambda x: error_distribution.pdf(x), yield_errors)))
+
+
   observations_likelihood = 0.0
   for i in range(1, n):
     g = observations[i, 1, model.n]
@@ -64,20 +68,30 @@ def likelihood(θ, model, observations, likelihood_method):
 
   # return -(joint_errors_likelihood + observations_likelihood) / n
   # return -joint_errors_likelihood / n
-  return -observations_likelihood / n
+  return -(observations_likelihood) / n
 
-# OK
-theta0 = [-0.03, 0.05, 1]
-model01 = A01()
 y_s = YieldSeries(table = prepare_data(), nfactors = 1)
+# print("Number of observations: " + str(y_s.length()) + "\n")
+
+# print("-------------------------- A01 Model --------------------------------")
+theta0 = [-0.03, 0.05, 1]
+# theta0 = [-0.541288257921, 0.0270055072839, -1.39696599475]
+model01 = A01()
+print("__________________________ TRUE likelihood __________________________")
 a01_true = minimize(likelihood, theta0, args=(model01, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-print(a01_true.x)
-a01_euler = minimize(likelihood, theta0, args=(model01, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-print(a01_euler.x)
-a01_approx_1 = minimize(likelihood, theta0, args=(model01, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-print(a01_approx_1.x)
-a01_approx_2 = minimize(likelihood, theta0, args=(model01, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
-print(a01_approx_2.x)
+model01.print_params(a01_true.x)
+print("___________________________ Euler method ____________________________")
+a01_euler = minimize(likelihood, theta0, args=(model01, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+model01.print_params(a01_euler.x)
+print("______________________ Approximations (k = 1) _______________________")
+a01_approx_1 = minimize(likelihood, theta0, args=(model01, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+model01.print_params(a01_approx_1.x)
+print("______________________ Approximations (k = 2) _______________________")
+a01_approx_2 = minimize(likelihood, theta0, args=(model01, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+model01.print_params(a01_approx_2.x)
+
+
+param = [-0.541288257921, 0.0270055072839, -1.39696599475]
 
 
 # theta0 = [-0.03, 0.05, 1, 0.5]
