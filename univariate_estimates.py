@@ -14,6 +14,7 @@ from lib.enumerable import *
 from models.a_0_1 import A01
 from models.a_1_1 import A11
 import code
+import time
 
 FILENAME = "data/yields.xls"
 
@@ -85,21 +86,35 @@ theta0 = [-0.03, 0.05, 1]
 model01 = A01()
 
 print("__________________________ TRUE likelihood __________________________")
-a01_true = minimize(likelihood, theta0, args=(model01, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+start_time = time.time()
+a01_true = minimize(likelihood, theta0, args=(model01, y_s, "true",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+end_time = time.time()
 model01.print_params(a01_true.x)
+print("Duration: " + "{:6.3f}".format(end_time - start_time) + "s, iterations: " + str(a01_true.nit))
 print("___________________________ Euler method ____________________________")
+start_time = time.time()
 a01_euler = minimize(likelihood, theta0, args=(model01, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+end_time = time.time()
 model01.print_params(a01_euler.x)
+print("Duration: " + "{:6.3f}".format(end_time - start_time) + "s, iterations: " + str(a01_euler.nit))
+print("____________________________ QML method _____________________________")
+start_time = time.time()
+a01_qml = minimize(likelihood, theta0, args=(model01, y_s, "qml",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+end_time = time.time()
+model01.print_params(a01_qml.x)
+print("Duration: " + "{:6.3f}".format(end_time - start_time) + "s, iterations: " + str(a01_qml.nit))
 print("______________________ Approximations (k = 1) _______________________")
+start_time = time.time()
 a01_approx_1 = minimize(likelihood, theta0, args=(model01, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+end_time = time.time()
 model01.print_params(a01_approx_1.x)
+print("Duration: " + "{:6.3f}".format(end_time - start_time) + "s, iterations: " + str(a01_approx_1.nit))
 print("______________________ Approximations (k = 2) _______________________")
+start_time = time.time()
 a01_approx_2 = minimize(likelihood, theta0, args=(model01, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': False, 'maxiter': 1000 })
+end_time = time.time()
 model01.print_params(a01_approx_2.x)
-
-
-param = [-0.541288257921, 0.0270055072839, -1.39696599475]
-
+print("Duration: " + "{:6.3f}".format(end_time - start_time) + "s, iterations: " + str(a01_approx_2.nit))
 
 # theta0 = [-0.03, 0.05, 1, 0.5]
 # model11 = A11()

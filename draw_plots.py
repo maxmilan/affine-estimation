@@ -20,7 +20,7 @@ values = []
 
 for row_index in range(sheet.nrows):
   row_values = sheet.row_values(row_index)
-  if row_values[0] and datetime.strptime(row_values[0], "%m/%Y") >= datetime(1946, 12, 1):
+  if row_values[0] and datetime.strptime(row_values[0], "%m/%Y") >= datetime(1965, 1, 1):
     item = {}
 
     for i in range(len(columns_indices)):

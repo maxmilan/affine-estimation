@@ -37,6 +37,8 @@ class UnivariateModel:
       return log(abs(1 / self.Γ(θ))) + self.l_x_true(Δ, x, x_0, θ)
     elif k == "euler":
       return log(abs(1 / self.Γ(θ))) + self.l_x_euler(Δ, x, x_0, θ)
+    elif k == "qml":
+      return log(abs(1 / self.Γ(θ))) + self.l_x_qml(Δ, x, x_0, θ)
     else:
       raise BaseException("Wrong argument k = " + str(k) + " in l_g!")
 
@@ -56,3 +58,6 @@ class UnivariateModel:
       sum = sum + self.c(i, x, x_0, θ) * Δ**i / factorial(i)
 
     return log(self.p_x_0(Δ, x, x_0, θ) * sum)
+
+  def l_x_qml(self, Δ, x, x_0, θ):
+    return log(sqrt(1 / (2 * pi * self.vx(Δ, x, x_0, θ))) * exp(- (x - self.ex(Δ, x, x_0, θ))**2 / (2 * self.vx(Δ, x, x_0, θ))))
