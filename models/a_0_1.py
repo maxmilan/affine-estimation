@@ -1,5 +1,5 @@
-from sympy import *
 from math import *
+import numpy as np
 from models.univariate_model import *
 
 # Parameters binding
@@ -44,3 +44,6 @@ class A01(UnivariateModel):
 
   def print_params(self, θ):
     print("| b_11 = " + str(θ[0]) + ", δ_1 = " + str(θ[1]) + ", λ_1 = " + str(θ[2]) + " |")
+
+  def is_valid(self, θ):
+    return θ[0] < 0

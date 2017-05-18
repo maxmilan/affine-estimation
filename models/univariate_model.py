@@ -1,4 +1,3 @@
-from sympy import *
 from math import *
 
 class UnivariateModel:
@@ -60,4 +59,6 @@ class UnivariateModel:
     return log(self.p_x_0(Δ, x, x_0, θ) * sum)
 
   def l_x_qml(self, Δ, x, x_0, θ):
-    return log(sqrt(1 / (2 * pi * self.vx(Δ, x, x_0, θ))) * exp(- (x - self.ex(Δ, x, x_0, θ))**2 / (2 * self.vx(Δ, x, x_0, θ))))
+    value = sqrt(1 / (2 * pi * self.vx(Δ, x, x_0, θ))) * exp(- (x - self.ex(Δ, x, x_0, θ))**2 / (2 * self.vx(Δ, x, x_0, θ)))
+
+    return log(value)
