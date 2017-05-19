@@ -78,5 +78,5 @@ class A11(UnivariateModel):
   def vx(self, Δ, x, x_0, θ):
     return (exp((θ[0] - θ[2]) * Δ) - 1) * (-θ[3] + exp((θ[0] - θ[2]) * Δ) * (θ[3] + 2 * x_0 * (θ[0] - θ[2]))) / (2 * (θ[0] - θ[2])**2)
 
-  def is_valid(self):
+  def is_valid(self, θ):
     return (θ[0] < 0) & (θ[1] >= 0) & (θ[3] >= 0.5)

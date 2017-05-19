@@ -13,6 +13,7 @@ from lib.statistics import *
 from lib.enumerable import *
 from models.a_0_1 import A01
 from models.a_1_1 import A11
+from models.a_0_2 import A02
 import code
 import time
 
@@ -69,25 +70,35 @@ def univariate_likelihood(θ, model, observations, likelihood_method):
     g_0 = observations[i - 1, 1, model.n]
     observations_likelihood += model.l_g(likelihood_method, delta, g, g_0, θ)
 
-  # return -(joint_errors_likelihood + observations_likelihood) / n
   return -observations_likelihood / n
 
 
-def multivariate_likelihood(θ):
+def multivariate_likelihood(θ, model, observations, likelihood_method):
   yield_errors = []
-  for i in range(0, y_s.length()):
-    gt = y_s[i, 1, 2]
-    gt_ext = y_s[i, 3, 4]
-    xt = inv(Γ(θ).transpose()).dot(subtract(gt, Γ0(θ)))
-    gt_calculated = Γ0_ext(θ) + Γ_ext(θ).dot(xt)
-    yield_errors.append(subtract(gt_calculated, gt_ext))
+  n = observations.length()
 
-  σ = multi_std(yield_errors)
-  error_distribution = multivariate_normal(mean = np.zeros(2), cov = np.diag(σ))
+  if not(model.is_valid(θ)):
+    return 0
 
-  joint_errors_likelihood = inject(lambda memo, x: memo * x, 1.0, list(map(lambda x: error_distribution.pdf(x), yield_errors)))
+  # for i in range(0, y_s.length()):
+  #   gt = y_s[i, 1, 2]
+  #   gt_ext = y_s[i, 3, 4]
+  #   xt = inv(Γ(θ).transpose()).dot(subtract_vectors(gt, Γ0(θ)))
+  #   gt_calculated = Γ0_ext(θ) + Γ_ext(θ).dot(xt)
+  #   yield_errors.append(subtract(gt_calculated, gt_ext))
 
-  return -joint_errors_likelihood
+  # σ = multi_std(yield_errors)
+  # error_distribution = multivariate_normal(mean = np.zeros(2), cov = np.diag(σ))
+
+  # joint_errors_likelihood = inject(lambda memo, x: memo * x, 1.0, list(map(lambda x: error_distribution.pdf(x), yield_errors)))
+
+  observations_likelihood = 0.0
+  for i in range(1, n):
+    g = observations[i, 1, model.n]
+    g_0 = observations[i - 1, 1, model.n]
+    observations_likelihood += model.l_g(likelihood_method, delta, g, g_0, θ)
+
+  return -observations_likelihood / n
 
 # theta0 = [-0.185793266805, 0.0264870240577, -0.866720304618]
 # theta1 = [-0.0999041150336, -0.106014406172, 0.242671357612]
@@ -138,14 +149,28 @@ print("Number of observations: " + str(y_s.length()) + "\n")
 # print("Duration: " + "{:6.3f}".format(end_time - start_time) + "s, iterations: " + str(a01_approx_2.nit))
 
 
-# print("-------------------------- A11 Model --------------------------------")
-# theta0 = [-0.03, 0.05, 1, 0.5]
-# model11 = A11()
-# a11_qml = minimize(univariate_likelihood, theta0, args=(model11, y_s, "qml",), bounds = model11.bounds(), method='L-BFGS-B', options= { 'disp': True, 'maxiter': 1000 })
+print("-------------------------- A11 Model --------------------------------")
+theta0 = [-0.03, 0.05, 1, 0.5]
+model11 = A11()
+a11_qml = minimize(univariate_likelihood, theta0, args=(model11, y_s, "qml",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a11_qml.x)
+a11_euler = minimize(univariate_likelihood, theta0, args=(model11, y_s, "euler",), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a11_euler.x)
+a11_approx_1 = minimize(univariate_likelihood, theta0, args=(model11, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a11_approx_1.x)
+a11_approx_2 = minimize(univariate_likelihood, theta0, args=(model11, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+print(a11_approx_2.x)
+
+y_s = YieldSeries(table = prepare_data(), nfactors = 2)
+
+# print("-------------------------- A02 Model --------------------------------")
+# theta0 = [-0.1, 0.8, 0.14, 0.15, -0.01, 0.16, 0.17]
+# model02 = A02()
+# # a11_qml = minimize(univariate_likelihood, theta0, args=(model11, y_s, "qml",), bounds = model11.bounds(), method='L-BFGS-B', options= { 'disp': True, 'maxiter': 1000 })
 # print(a11_qml.x)
 # a11_euler = minimize(univariate_likelihood, theta0, args=(model11, y_s, "euler",), bounds = model11.bounds(), method='L-BFGS-B', options= { 'disp': False, 'maxiter': 1000 })
 # print(a11_euler.x)
-# a11_approx_1 = minimize(univariate_likelihood, theta0, args=(model11, y_s, 1,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
+# a11_approx_1 = minimize(multivariate_likelihood, theta0, args=(model02, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
 # print(a11_approx_1.x)
 # a11_approx_2 = minimize(univariate_likelihood, theta0, args=(model11, y_s, 2,), method='nelder-mead', options= { 'xtol': 1e-6, 'disp': True, 'maxiter': 1000 })
 # print(a11_approx_2.x)
