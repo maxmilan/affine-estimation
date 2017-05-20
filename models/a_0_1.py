@@ -42,8 +42,8 @@ class A01(UnivariateModel):
   def vx(self, Δ, x, x_0, θ):
     return 1 / (2 * θ[0]) * (exp(2 * θ[0] * Δ) - 1)
 
-  def print_params(self, θ):
-    print("| b_11 = " + str(θ[0]) + ", δ_1 = " + str(θ[1]) + ", λ_1 = " + str(θ[2]) + " |")
-
   def is_valid(self, θ):
     return θ[0] < 0
+
+  def print_params(self, θ):
+    print("| b_11 = " + str(θ[0]) + ", δ_1 = " + str(θ[1]) + ", λ_1 = " + str(θ[2]) + " |")
