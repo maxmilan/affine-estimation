@@ -14,51 +14,56 @@ class UnivariateModel:
   def n(self):
     return self._n
 
-  def Γ_0(self, θ):
-    return self.γ_0(self.without_error_maturity, θ)
+  def G_0(self, theta):
+    return self.g_0(self.without_error_maturity, theta)
 
-  def Γ_0_ext(self, θ):
-    return self.γ_0(self.with_error_maturity, θ)
+  def G_0_ext(self, theta):
+    return self.g_0(self.with_error_maturity, theta)
 
-  def Γ(self, θ):
-    return self.γ(self.without_error_maturity, θ)
+  def G(self, theta):
+    return self.g(self.without_error_maturity, theta)
 
-  def Γ_ext(self, θ):
-    return self.γ(self.with_error_maturity, θ)
+  def G_ext(self, theta):
+    return self.g(self.with_error_maturity, theta)
 
-  def l_g(self, k, Δ, g, g_0, θ):
-    x = (g + self.Γ_0(θ)) / self.Γ(θ)
-    x_0 = (g_0 + self.Γ_0(θ)) / self.Γ(θ)
+  def g(self, g_0, tau_0, theta, tau):
+    x = (g_0 + self.g_0(tau_0, theta)) / self.g(tau_0, theta)
+
+    return -self.g_0(tau, theta) + self.g(tau, theta) * x
+
+  def l_g(self, k, delta, g, g_0, theta):
+    x = (g + self.G_0(theta)) / self.G(theta)
+    x_0 = (g_0 + self.G_0(theta)) / self.G(theta)
 
     if isinstance(k, int):
-      return log(abs(1 / self.Γ(θ))) + self.l_x(k, Δ, x, x_0, θ)
+      return log(abs(1 / self.G(theta))) + self.l_x(k, delta, x, x_0, theta)
     elif k == "true":
-      return log(abs(1 / self.Γ(θ))) + self.l_x_true(Δ, x, x_0, θ)
+      return log(abs(1 / self.G(theta))) + self.l_x_true(delta, x, x_0, theta)
     elif k == "euler":
-      return log(abs(1 / self.Γ(θ))) + self.l_x_euler(Δ, x, x_0, θ)
+      return log(abs(1 / self.G(theta))) + self.l_x_euler(delta, x, x_0, theta)
     elif k == "qml":
-      return log(abs(1 / self.Γ(θ))) + self.l_x_qml(Δ, x, x_0, θ)
+      return log(abs(1 / self.G(theta))) + self.l_x_qml(delta, x, x_0, theta)
     else:
       raise BaseException("Wrong argument k = " + str(k) + " in l_g!")
 
-  def c(self, k, x, x_0, θ):
-    def coefficient_not_found(x, x_0, θ):
+  def c(self, k, x, x_0, theta):
+    def coefficient_not_found(x, x_0, theta):
       raise BaseException("No coefficient " + str(k) + " found!")
 
     function_name = 'c' + str(k)
     function = getattr(self, function_name, coefficient_not_found)
 
-    return function(x, x_0, θ)
+    return function(x, x_0, theta)
 
-  def l_x(self, k, Δ, x, x_0, θ):
+  def l_x(self, k, delta, x, x_0, theta):
     sum = 1
 
     for i in range(1, k + 1):
-      sum = sum + self.c(i, x, x_0, θ) * Δ**i / factorial(i)
+      sum = sum + self.c(i, x, x_0, theta) * delta**i / factorial(i)
 
-    return log(self.p_x_0(Δ, x, x_0, θ) * sum)
+    return log(self.p_x_0(delta, x, x_0, theta) * sum)
 
-  def l_x_qml(self, Δ, x, x_0, θ):
-    value = sqrt(1 / (2 * pi * self.vx(Δ, x, x_0, θ))) * exp(- (x - self.ex(Δ, x, x_0, θ))**2 / (2 * self.vx(Δ, x, x_0, θ)))
+  def l_x_qml(self, delta, x, x_0, theta):
+    value = sqrt(1 / (2 * pi * self.vx(delta, x, x_0, theta))) * exp(- (x - self.ex(delta, x, x_0, theta))**2 / (2 * self.vx(delta, x, x_0, theta)))
 
     return log(value)

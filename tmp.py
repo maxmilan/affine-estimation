@@ -53,3 +53,16 @@
 # ______________________ Approximations (k = 2) _______________________
 # | b_11 = -2.04720362824e-08, δ_1 = 0.0264955200624, λ_1 = 0.58712463531, a_1 = 1.14777104854 |
 # Duration: 46.645s, iterations: 190
+
+
+yield_errors = []
+
+for i in range(y_s_1_factor.length()):
+  gt = y_s_1_factor[i, 1, model01.n]
+  gt_ext = y_s_1_factor[i, model01.n + 1, 2 * model01.n]
+  xt = (gt + model01.Γ_0(true_estimates)) / model01.Γ(true_estimates)
+  gt_calculated = -model01.Γ_0_ext(true_estimates) + model01.Γ_ext(true_estimates) * xt
+  yield_errors.append([abs(gt_calculated - gt_ext), i])
+
+yield_errors.sort()
+print(yield_errors)
