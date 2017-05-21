@@ -52,18 +52,14 @@ class UnivariateModel:
 
     function_name = 'c' + str(k)
     function = getattr(self, function_name, coefficient_not_found)
-
     return function(x, x_0, theta)
 
   def l_x(self, k, delta, x, x_0, theta):
     sum = 1
-
     for i in range(1, k + 1):
       sum = sum + self.c(i, x, x_0, theta) * delta**i / factorial(i)
-
     return log(self.p_x_0(delta, x, x_0, theta) * sum)
 
   def l_x_qml(self, delta, x, x_0, theta):
     value = sqrt(1 / (2 * pi * self.vx(delta, x, x_0, theta))) * exp(- (x - self.ex(delta, x, x_0, theta))**2 / (2 * self.vx(delta, x, x_0, theta)))
-
     return log(value)
